@@ -18,3 +18,4 @@ jobs:
           repository: ZaidAlamgir/TMP_Host
           # The type of event to send (matches the one in your deploy.yml)
           event-type: new-live-content
+          
