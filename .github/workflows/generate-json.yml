@@ -6,15 +6,11 @@ on:
       - main
   workflow_dispatch:
   schedule:
-    - cron: '*/6 * * * *' # Runs every 6 minutes to stay within GitHub's limits
+    - cron: '*/6 * * * *' # Runs every 6 minutes
 
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pages: write
-      id-token: write
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
@@ -36,7 +32,7 @@ jobs:
             const postsDir = process.cwd();
             const files = fs.readdirSync(postsDir)
               .filter(file => file.endsWith('.md') && file !== '.gitkeep')
-              .sort((a, b) => b.localeCompare(a)); // Sort descending to get newest first
+              .sort((a, b) => b.localeCompare(a));
 
             const posts = files.slice(0, 20).map(file => {
               const filePath = path.join(postsDir, file);
@@ -54,7 +50,7 @@ jobs:
             fs.writeFileSync('live-updates.json', JSON.stringify(posts, null, 2));
             console.log('Successfully generated live-updates.json');
           "
-
+      
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
@@ -65,9 +61,12 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
-    needs: build-and-deploy
+    needs: build
+    # This is the crucial fix that was missing
+    permissions:
+      pages: write
+      id-token: write
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-        
