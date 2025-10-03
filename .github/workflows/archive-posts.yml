@@ -1,0 +1,101 @@
+name: Archive Supabase to Git
+
+on:
+  schedule:
+    # Runs at 1 AM every day. You can adjust this schedule.
+    - cron: '0 1 * * *'
+  workflow_dispatch:
+
+jobs:
+  archive:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.PAT_FOR_ARCHIVE }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Archive Posts
+        id: archive_script
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: |
+          npm install @supabase/supabase-js gray-matter
+          node -e "
+            const { createClient } = require('@supabase/supabase-js');
+            const fs = require('fs');
+            const path = require('path');
+            const matter = require('gray-matter');
+
+            const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
+            const POST_LIMIT = 250;
+            const BATCH_SIZE = 50;
+
+            async function run() {
+              console.log('Checking for posts to archive...');
+              const { count, error: countError } = await supabase.from('live_posts').select('*', { count: 'exact', head: true });
+              if (countError) throw countError;
+
+              if (count <= POST_LIMIT) {
+                console.log(`Post count (${count}) is within the limit of ${POST_LIMIT}. No archival needed.`);
+                return;
+              }
+
+              const postsToArchiveCount = count - POST_LIMIT;
+              const limit = Math.min(postsToArchiveCount, BATCH_SIZE);
+              
+              console.log(`Found ${count} posts. Archiving the oldest ${limit} posts.`);
+
+              const { data: posts, error: fetchError } = await supabase
+                .from('live_posts')
+                .select('*')
+                .order('timestamp', { ascending: true }) // Get the oldest posts first
+                .limit(limit);
+
+              if (fetchError) throw fetchError;
+
+              const postIdsToDelete = [];
+              for (const post of posts) {
+                const { id, headline, content, author_name, timestamp, tags, is_pinned } = post;
+                if (is_pinned) continue; // Safety check: never archive a pinned post
+
+                const frontmatter = { headline, author_name, timestamp, tags };
+                const fileContent = matter.stringify(content, frontmatter);
+                
+                const date = new Date(timestamp);
+                const safeHeadline = (headline || 'update').replace(/[^a-z0-9]/gi, '-').toLowerCase();
+                const fileName = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}-${safeHeadline.substring(0, 50)}.md`;
+                
+                fs.writeFileSync(path.join(process.cwd(), '_posts', fileName), fileContent);
+                console.log(`Archived post ${id} to _posts/${fileName}`);
+                postIdsToDelete.push(id);
+              }
+
+              if (postIdsToDelete.length > 0) {
+                console.log(`Deleting ${postIdsToDelete.length} posts from Supabase...`);
+                const { error: deleteError } = await supabase.from('live_posts').delete().in('id', postIdsToDelete);
+                if (deleteError) throw deleteError;
+                console.log('Deletion successful.');
+              }
+            }
+            run().catch(err => { console.error(err); process.exit(1); });
+          "
+      
+      - name: Commit and Push Changes
+        run: |
+          git config --global user.name 'GitHub Actions Bot'
+          git config --global user.email 'actions-bot@github.com'
+          git add _posts/
+          # Check if there are changes to commit
+          if ! git diff-index --quiet HEAD; then
+            git commit -m 'feat: Archive older live posts'
+            git push
+          else
+            echo "No new posts to archive."
+          fi
