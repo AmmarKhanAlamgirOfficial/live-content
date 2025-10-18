@@ -2,7 +2,7 @@ name: Archive Supabase to Git
 
 on:
   schedule:
-    # Runs at 1 AM every day. You can adjust this schedule.
+    # Runs at 18:30 UTC (12:00 AM IST)
     - cron: '30 18 * * *'
   workflow_dispatch:
 
@@ -27,7 +27,8 @@ jobs:
           SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
         run: |
           npm install @supabase/supabase-js gray-matter
-          node -e "
+          # *** THIS IS THE MODIFIED PART ***
+          node - <<'EOF'
             const { createClient } = require('@supabase/supabase-js');
             const fs = require('fs');
             const path = require('path');
@@ -43,7 +44,10 @@ jobs:
                 .select('*')
                 .order('timestamp', { ascending: false });
 
-              if (fetchError) throw fetchError;
+              if (fetchError) {
+                console.error('Error fetching posts:', fetchError);
+                throw fetchError;
+              }
 
               if (allPosts.length <= POSTS_TO_KEEP) {
                 console.log(`Post count (${allPosts.length}) is within the limit of ${POSTS_TO_KEEP}. No archival needed.`);
@@ -51,15 +55,15 @@ jobs:
               }
 
               const postsToArchive = allPosts.slice(POSTS_TO_KEEP);
-              console.log(`Found ${allPosts.length} posts. Archiving ${postsToArchive.length} posts.`);
+              console.log(`Found ${allPosts.length} posts. Archiving the oldest ${postsToArchive.length} posts.`);
 
               const postIdsToDelete = [];
               for (const post of postsToArchive) {
                 const { id, headline, content, author_name, timestamp, tags, is_pinned } = post;
-                if (is_pinned) continue;
+                if (is_pinned) continue; // Safety check: never archive a pinned post
 
                 const frontmatter = { headline, author_name, timestamp, tags };
-                const fileContent = matter.stringify(content, frontmatter);
+                const fileContent = matter.stringify(content || '', frontmatter);
                 
                 const date = new Date(timestamp);
                 const safeHeadline = (headline || 'update').replace(/[^a-z0-9]/gi, '-').toLowerCase();
@@ -73,12 +77,19 @@ jobs:
               if (postIdsToDelete.length > 0) {
                 console.log(`Deleting ${postIdsToDelete.length} posts from Supabase...`);
                 const { error: deleteError } = await supabase.from('live_posts').delete().in('id', postIdsToDelete);
-                if (deleteError) throw deleteError;
+                if (deleteError) {
+                  console.error('Error deleting posts:', deleteError);
+                  throw deleteError;
+                }
                 console.log('Deletion successful.');
               }
             }
-            run().catch(err => { console.error(err); process.exit(1); });
-          "
+
+            run().catch(err => {
+              console.error('Script failed:', err);
+              process.exit(1);
+            });
+          EOF
       
       - name: Commit and Push Changes
         run: |
