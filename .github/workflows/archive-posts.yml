@@ -2,8 +2,8 @@ name: Archive Supabase to Git
 
 on:
   schedule:
-    # Runs at 1 AM every day. You can adjust this schedule.
-    - cron: '0 1 * * *'
+    # Runs at 00:00 IST (18:30 UTC) every day
+    - cron: '30 18 * * *'
   workflow_dispatch:
 
 jobs:
@@ -34,44 +34,37 @@ jobs:
             const matter = require('gray-matter');
 
             const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
-            const POST_LIMIT = 250;
-            const BATCH_SIZE = 50;
+            const POSTS_TO_KEEP = 10;
 
             async function run() {
-              console.log('Checking for posts to archive...');
-              const { count, error: countError } = await supabase.from('live_posts').select('*', { count: 'exact', head: true });
-              if (countError) throw countError;
-
-              if (count <= POST_LIMIT) {
-                console.log(`Post count (${count}) is within the limit of ${POST_LIMIT}. No archival needed.`);
-                return;
-              }
-
-              const postsToArchiveCount = count - POST_LIMIT;
-              const limit = Math.min(postsToArchiveCount, BATCH_SIZE);
-              
-              console.log(`Found ${count} posts. Archiving the oldest ${limit} posts.`);
-
-              const { data: posts, error: fetchError } = await supabase
+              console.log('Fetching all posts to determine which to archive...');
+              const { data: allPosts, error: fetchError } = await supabase
                 .from('live_posts')
                 .select('*')
-                .order('timestamp', { ascending: true }) // Get the oldest posts first
-                .limit(limit);
+                .order('timestamp', { ascending: false }); // Get all posts, newest first
 
               if (fetchError) throw fetchError;
 
+              if (allPosts.length <= POSTS_TO_KEEP) {
+                console.log(`Post count (${allPosts.length}) is within the limit of ${POSTS_TO_KEEP}. No archival needed.`);
+                return;
+              }
+
+              const postsToArchive = allPosts.slice(POSTS_TO_KEEP);
+              console.log(`Found ${allPosts.length} posts. Archiving ${postsToArchive.length} posts.`);
+
               const postIdsToDelete = [];
-              for (const post of posts) {
+              for (const post of postsToArchive) {
                 const { id, headline, content, author_name, timestamp, tags, is_pinned } = post;
                 if (is_pinned) continue; // Safety check: never archive a pinned post
 
                 const frontmatter = { headline, author_name, timestamp, tags };
                 const fileContent = matter.stringify(content, frontmatter);
-                
+
                 const date = new Date(timestamp);
                 const safeHeadline = (headline || 'update').replace(/[^a-z0-9]/gi, '-').toLowerCase();
                 const fileName = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}-${safeHeadline.substring(0, 50)}.md`;
-                
+
                 fs.writeFileSync(path.join(process.cwd(), '_posts', fileName), fileContent);
                 console.log(`Archived post ${id} to _posts/${fileName}`);
                 postIdsToDelete.push(id);
@@ -86,7 +79,6 @@ jobs:
             }
             run().catch(err => { console.error(err); process.exit(1); });
           "
-      
       - name: Commit and Push Changes
         run: |
           git config --global user.name 'GitHub Actions Bot'
