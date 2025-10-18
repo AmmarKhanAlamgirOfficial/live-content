@@ -1,14 +1,14 @@
-    ---
-    layout: default
-    ---
-    <h1>Live News Archive</h1>
-    <ul class="post-list">
-      {% for post in site.posts %}
-        <li>
-          <h2><a href="{{ post.url | relative_url }}">{{ post.data.headline | default: "Live Update" }}</a></h2>
-          <p class="post-meta">{{ post.date | date: "%B %-d, %Y" }}</p>
-          <p>{{ post.excerpt }}</p>
-        </li>
-      {% endfor %}
-    </ul>
+---
+layout: default
+---
+<h1>Live News Archive</h1>
+<ul class="post-list">
+  {% for post in site.posts %}
+    <li>
+      <h2><a href="{{ post.url | relative_url }}">{{ post.data.headline | default: "Live Update" }}</a></h2>
+      <p class="post-meta">{{ post.date | date: "%B %-d, %Y" }}</p>
+      <p>{{ post.excerpt }}</p>
+    </li>
+  {% endfor %}
+</ul>
     
