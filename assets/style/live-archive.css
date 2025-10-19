@@ -1,0 +1,38 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
+.live-container { max-width: 1440px; margin: 0 auto; padding: 0 1rem 4rem 1rem; }
+.live-header { text-align: center; margin-bottom: 2.5rem; padding-top: 2rem; }
+.live-post { background-color: #fff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin: 0 auto 2rem auto; max-width: 800px; }
+.live-post-content { padding: 1.5rem; }
+.post-body { text-align: center; }
+.post-body > * { text-align: left; margin-left: auto; margin-right: auto; }
+.post-body .my-4 { margin-top: 1rem; margin-bottom: 1rem; }
+.live-post-headline { font-size: 1.25rem; font-weight: 700; color: #111827; margin-bottom: 1rem; line-height: 1.2; }
+.live-post-meta { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; font-size: 0.875rem; color: #4b5563; }
+.live-post-author-group { display: flex; align-items: center; gap: 0.5rem; }
+.live-post-author { font-weight: 600; }
+.live-post-time { font-weight: 600; color: #ef4444; margin-left: auto; }
+.post-author-logo {
+    width: 30px;
+    height: 30px;
+    color: #3498db;
+}
+.post-author-logo .tmp-text {
+    font-size: 80px;
+    font-weight: bold;
+    fill: #0a0707;
+}
+.post-author-logo .square { fill: currentColor; }
+.post-author-logo .rotating-circle {
+    transform-origin: center;
+    animation: rotate 10s linear infinite;
+    stroke: currentColor;
+}
+@keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.post-body p { font-size: 1.125rem; line-height: 1.7; color: #374151; margin-bottom: 1.25rem; }
+.post-body img { max-width: 100%; border-radius: 8px; margin-bottom: 0.25rem; }
+.post-body blockquote { font-style: italic; color: #4b5563; border-left: 3px solid #d1d5db; padding-left: 1.5rem; margin: 1.5rem 0; font-size: 1.1rem; }
+.media-caption { text-align: center; font-size: 0.875rem; color: #6b7280; margin-top: 0.25rem; padding-bottom: 1rem; font-style: italic; }
+.tags-container { margin-top: 1rem; display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.tag-badge { background-color: #eef2ff; color: #4338ca; padding: 0.25rem 0.75rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600; text-decoration: none; }
