@@ -1,0 +1,7 @@
+# Ignore the Jekyll build output
+_site/
+
+# Ignore other Jekyll and system files
+.sass-cache/
+.jekyll-cache/
+.jekyll-metadata
