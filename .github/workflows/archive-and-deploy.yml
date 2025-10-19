@@ -1,15 +1,11 @@
-name: Archive Posts and Deploy Site
+name: Archive Posts and Deploy Site (Force Build)
 
 on:
-  schedule:
-    - cron: '30 18 * * *' # Runs at 12:00 AM IST
-  workflow_dispatch:
+  workflow_dispatch: # This is now only a manual trigger for testing
 
 jobs:
   archive:
     runs-on: ubuntu-latest
-    outputs:
-      changes: ${{ steps.commit_push.outputs.changes }}
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
@@ -55,11 +51,11 @@ jobs:
 
                 const frontmatter = { headline, author_name, timestamp, tags };
                 const fileContent = matter.stringify(content || '', frontmatter);
-
+                
                 const date = new Date(timestamp);
                 const safeHeadline = (headline || 'update').replace(/[^a-z0-9]/gi, '-').toLowerCase();
                 const fileName = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}-${safeHeadline.substring(0, 50)}.md`;
-
+                
                 fs.writeFileSync(path.join(process.cwd(), '_posts', fileName), fileContent);
                 console.log(`Archived post ${id} to _posts/${fileName}`);
                 postIdsToDelete.push(id);
@@ -74,26 +70,23 @@ jobs:
             }
             run().catch(err => { console.error(err); process.exit(1); });
           EOF
-
+      
       - name: Commit and Push Changes
-        id: commit_push
         run: |
           git config --global user.name 'GitHub Actions Bot'
           git config --global user.email 'actions-bot@github.com'
           git add _posts/
           if ! git diff-index --quiet HEAD; then
-            echo "changes=true" >> $GITHUB_OUTPUT
             git commit -m 'feat: Archive older live posts'
             git push
           else
-            echo "changes=false" >> $GITHUB_OUTPUT
             echo "No new posts to archive."
           fi
 
   deploy:
     runs-on: ubuntu-latest
     needs: archive
-    if: needs.archive.outputs.changes == 'true' # Only runs if there are new posts
+    # *** THIS IS THE ONLY CHANGE - THE 'if' CONDITION IS REMOVED ***
     permissions:
       pages: write
       id-token: write
@@ -120,8 +113,7 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           path: ./_site
-
+          
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-        
