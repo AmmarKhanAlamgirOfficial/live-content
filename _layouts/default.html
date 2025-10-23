@@ -4,26 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ page.title | default: site.title }}</title>
-    <link rel="stylesheet" href="{{ '/assets/style/style.css' | relative_url }}">
-    <link rel="stylesheet" href="{{ '/assets/style/live-archive.css' | relative_url }}">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-    <style>
-        .responsive-iframe-container { position: relative; overflow: hidden; width: 100%; max-width: 550px; margin: 1rem auto; }
-        .responsive-iframe-container-16x9 { padding-top: 56.25%; }
-        .responsive-iframe-container iframe { position: absolute; top: 0; left: 0; bottom: 0; right: 0; width: 100%; height: 100%; border: none; }
-        .instagram-video-container { position: relative; padding-bottom: 125%; height: 0; overflow: hidden; max-width: 500px; margin: 1rem auto; border-radius: 8px; }
-        .instagram-video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
-    </style>
+    <link rel="stylesheet" href="/assets/style/style.css">
+    <link rel="stylesheet" href="/assets/style/live-archive.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
-<body data-base-path="{{ site.baseurl }}">
+<body>
+
     <div id="header-placeholder"></div>
 
-    {{ content }}
+    <main class="main-content-area">
+        {{ content }}
+    </main>
 
     <div id="bottom-nav-placeholder"></div>
-    
-    <script src="{{ '/assets/header-injector.js' | relative_url }}"></script>
-    <script src="{{ '/assets/bottom-nav.js' | relative_url }}"></script>
-    <script src="{{ '/assets/embed.js' | relative_url }}"></script>
+
+    <script src="/assets/header-injector.js"></script>
+    <script src="/assets/bottom-nav.js"></script>
+    <script src="/assets/embed.js"></script>
 </body>
 </html>

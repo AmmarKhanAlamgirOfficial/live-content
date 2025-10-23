@@ -6,30 +6,96 @@ layout: default
         <h1 class="text-4xl font-extrabold text-gray-800">Live News Archive</h1>
     </header>
 
-    {% for post in site.posts %}
-    <div class="live-post">
-        <div class="live-post-content">
-            <div class="live-post-meta">
-                <div class="live-post-author-group">
-                    <svg class="post-author-logo" viewBox="0 0 200 200" aria-hidden="true"><rect x="50" y="50" width="100" height="100" class="square"/><text x="50%" y="50%" text-anchor="middle" dy=".3em" class="tmp-text">TMP</text><circle cx="100" cy="100" r="80" fill="none" stroke-width="2" class="rotating-circle"/></svg>
-                    <span class="live-post-author">By {{ post.author_name | default: "Live Team" }}</span>
+    <div id="live-feed">
+        {% for post in site.posts %}
+        <div class="live-post" id="post-{{ post.id | slugify }}">
+            <div class="live-post-content">
+                <div class="live-post-meta">
+                    <div class="live-post-author-group">
+                        <svg class="post-author-logo" viewBox="0 0 200 200" aria-hidden="true"><rect x="50" y="50" width="100" height="100" class="square"/><text x="50%" y="50%" text-anchor="middle" dy=".3em" class="tmp-text">TMP</text><circle cx="100" cy="100" r="80" fill="none" stroke-width="2" class="rotating-circle"/></svg>
+                        <span class="live-post-author">By {{ post.author_name | default: "Live Team" }}</span>
+                    </div>
+                    <span class="live-post-time">{{ post.timestamp | date: "%B %d, %Y %I:%M %p" }}</span>
                 </div>
-                <span class="live-post-time">{{ post.timestamp | date: "%B %d, %Y %I:%M %p" }}</span>
-            </div>
-            <h2 class="live-post-headline">{{ post.headline }}</h2>
-            {% if post.tags.size > 0 %}
-            <div class="tags-container">
-                {% for tag in post.tags %}
-                <span class="tag-badge">#{{ tag }}</span>
-                {% endfor %}
-            </div>
-            {% endif %}
-            
-            <div class="post-body pt-4">
-                {{ post.content }}
-            </div>
+                <h2 class="live-post-headline">{{ post.headline }}</h2>
+                {% if post.tags.size > 0 %}
+                <div class="tags-container">
+                    {% for tag in post.tags %}
+                    <span class="tag-badge">#{{ tag }}</span>
+                    {% endfor %}
+                </div>
+                {% endif %}
 
+                <div class="post-body pt-4" data-raw-content="{{ post.content | escape }}">
+                    </div>
+
+                <div class="post-footer">
+                    <button class="share-btn" data-post-id="{{ post.id | slugify }}" data-post-headline="{{ post.headline | escape }}">
+                        <i class="fas fa-share-alt"></i>
+                        <span>Share</span>
+                    </button>
+                </div>
+
+            </div>
         </div>
+        {% endfor %}
     </div>
-    {% endfor %}
+
+    <div id="feed-controls">
+        <button id="load-more-btn" class="professional-btn">Load More</button>
+        <p id="no-more-posts-msg" style="display: none;">This is the end.</p>
+    </div>
+
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const postsPerLoad = 50;
+        let visiblePosts = 0;
+        const allPosts = document.querySelectorAll('.live-post');
+        const loadMoreBtn = document.getElementById('load-more-btn');
+        const noMorePostsMsg = document.getElementById('no-more-posts-msg');
+
+        function loadPosts() {
+            const nextBatch = visiblePosts + postsPerLoad;
+            for (let i = visiblePosts; i < nextBatch && i < allPosts.length; i++) {
+                allPosts[i].style.display = 'block';
+            }
+            visiblePosts = nextBatch;
+
+            if (visiblePosts >= allPosts.length) {
+                loadMoreBtn.style.display = 'none';
+                noMorePostsMsg.style.display = 'block';
+            }
+        }
+
+        loadPosts();
+
+        loadMoreBtn.addEventListener('click', loadPosts);
+
+        const shareHandler = (e) => {
+            const shareBtn = e.target.closest('.share-btn');
+            if (shareBtn) {
+                const postId = shareBtn.dataset.postId;
+                const postHeadline = shareBtn.dataset.postHeadline;
+                const postUrl = `${window.location.origin}${window.location.pathname}#post-${postId}`;
+                const shareText = `Archived Post: ${postHeadline}`;
+
+                if (navigator.share) {
+                    navigator.share({
+                        title: postHeadline,
+                        text: shareText,
+                        url: postUrl
+                    });
+                } else {
+                    alert(`Share this link:\n${postUrl}`);
+                }
+            }
+        };
+
+        const liveContainer = document.querySelector('.live-container');
+        if (liveContainer) {
+            liveContainer.addEventListener('click', shareHandler);
+        }
+    });
+</script>

@@ -32,28 +32,30 @@ body {
 .header-left, .header-right {
     display: flex;
     align-items: center;
-    flex: 1 0 auto;
+    flex: 1 0 auto; /* Allow sides to have a size but not grow */
 }
 
-.header-left {
-    justify-content: flex-start;
+.header-left { 
+    justify-content: flex-start; 
 }
 
-.header-right {
-    justify-content: flex-end;
+.header-right { 
+    justify-content: flex-end; 
 }
 
-.header-center {
+.header-center { 
     display: flex;
     justify-content: center;
     align-items: center;
-    flex: 0 1 auto;
-    min-width: 0;
+    /* Allow center to shrink and take up remaining space */
+    flex: 0 1 auto; 
+    min-width: 0; /* CRUCIAL for shrinking */
 }
 
 .logo {
     font-family: 'Playfair Display', serif;
-    font-size: clamp(1.5rem, 5vw, 1.75rem);
+    /* NEW Responsive Font: Larger base size on mobile (1.5rem) */
+    font-size: clamp(1.5rem, 5vw, 1.75rem); 
     font-weight: 600;
     color: #000;
     text-decoration: none;
@@ -66,24 +68,24 @@ body {
 .logo .vector-animation {
     height: 1.4em;
     width: auto;
-    margin-right: 0.4em;
+    margin-right: 0.4em; /* Slightly reduced margin */
     flex-shrink: 0;
-    color: #3498db;
-    display: flex;
+    color: #3498db; /* Sets the color for square and circle */
+    display: flex; /* Ensure it's treated as a block for showing/hiding */
     align-items: center;
 }
 
-.logo .tmp-text {
+.logo .tmp-text, .post-author-logo .tmp-text {
     font-size: 80px;
     font-weight: bold;
     fill: #0a0707;
 }
 
-.logo .square {
+.logo .square, .post-author-logo .square {
     fill: currentColor;
 }
 
-.logo .rotating-circle {
+.logo .rotating-circle, .post-author-logo .rotating-circle {
     transform-origin: center;
     animation: rotate 10s linear infinite;
     stroke: currentColor;
@@ -94,6 +96,7 @@ body {
     to { transform: rotate(360deg); }
 }
 
+/* --- Profile Icon Sizing Fix --- */
 #profile-pic-container, #profile-pic-img, #profile-initial-circle {
     width: 30px;
     height: 30px;
@@ -111,4 +114,27 @@ body {
     font-size: 1rem;
     font-weight: bold;
     color: white;
+}
+
+/* --- NEW RESPONSIVE RULES --- */
+
+/* For devices (around 390px wide) and up, both logo and text are visible */
+@media (min-width: 381px) {
+    .logo .vector-animation {
+        display: flex;
+    }
+    .logo .logo-text {
+        display: inline;
+    }
+}
+
+/* For smaller phones (380px and below), hide the logo to make space for the text */
+@media (max-width: 380px) {
+    .logo .vector-animation {
+        display: none; /* Hide the SVG logo */
+    }
+    .header-center {
+        justify-content: flex-start; /* Align title to the left of center space */
+        padding-left: 0.5rem;
+    }
 }
