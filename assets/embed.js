@@ -29,8 +29,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         console.log('YouTube URL:', socialUrl, 'Extracted ID:', videoId);
 
                         if (videoId && isValidYouTubeId(videoId)) {
-                            // PROFESSIONAL YOUTUBE EMBED - Fixed size, aligned with text
-                            htmlBlock = `<div class="youtube-embed my-4">
+                            // PROFESSIONAL YOUTUBE EMBED - No gaps
+                            htmlBlock = `<div class="youtube-embed my-4" data-gap-removed="true">
                                 <iframe 
                                     src="https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1" 
                                     frameborder="0" 
@@ -38,7 +38,8 @@ document.addEventListener('DOMContentLoaded', () => {
                                     allowfullscreen
                                     loading="lazy"
                                     title="YouTube video player"
-                                    class="youtube-iframe">
+                                    class="youtube-iframe"
+                                    style="margin: 0 !important; padding: 0 !important; display: block !important;">
                                 </iframe>
                                 ${caption}
                             </div>`;
@@ -57,8 +58,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     case 'twitter':
                     case 'twitter-video':
                         const twitterUrl = socialUrl.replace('x.com', 'twitter.com');
-                        htmlBlock = `<div class="embed-container twitter-embed my-4">
-                            <blockquote class="twitter-tweet" data-dnt="true" data-theme="light" data-align="center" data-lazy="true">
+                        htmlBlock = `<div class="embed-container twitter-embed my-4" data-gap-removed="true">
+                            <blockquote class="twitter-tweet" data-dnt="true" data-theme="light" data-align="center" data-lazy="true" style="margin: 0 !important; padding: 0 !important;">
                                 <a href="${twitterUrl}"></a>
                             </blockquote>
                             ${caption}
@@ -67,22 +68,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     case 'instagram':
                     case 'instagram-video':
-                        htmlBlock = `<div class="embed-container instagram-embed my-4">
-                            <blockquote class="instagram-media" data-instgrm-captioned data-instgrm-permalink="${socialUrl}" data-instgrm-version="14" data-instgrm-lazy="true"></blockquote>
+                        htmlBlock = `<div class="embed-container instagram-embed my-4" data-gap-removed="true">
+                            <blockquote class="instagram-media" data-instgrm-captioned data-instgrm-permalink="${socialUrl}" data-instgrm-version="14" data-instgrm-lazy="true" style="margin: 0 !important; padding: 0 !important;"></blockquote>
                             ${caption}
                         </div>`;
                         break;
 
                     case 'facebook':
-                        htmlBlock = `<div class="embed-container facebook-embed my-4">
-                            <div class="fb-post" data-href="${socialUrl}" data-width="auto" data-show-text="true" data-lazy="true"></div>
+                        htmlBlock = `<div class="embed-container facebook-embed my-4" data-gap-removed="true">
+                            <div class="fb-post" data-href="${socialUrl}" data-width="auto" data-show-text="true" data-lazy="true" style="margin: 0 !important; padding: 0 !important;"></div>
                             ${caption}
                         </div>`;
                         break;
 
                     case 'tiktok':
-                        htmlBlock = `<div class="embed-container tiktok-embed my-4">
-                            <blockquote class="tiktok-embed" cite="${socialUrl}" data-video-id="${socialUrl.split('/').pop()}" data-lazy="true">
+                        htmlBlock = `<div class="embed-container tiktok-embed my-4" data-gap-removed="true">
+                            <blockquote class="tiktok-embed" cite="${socialUrl}" data-video-id="${socialUrl.split('/').pop()}" data-lazy="true" style="margin: 0 !important; padding: 0 !important;">
                                 <section></section>
                             </blockquote>
                             ${caption}
@@ -124,7 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (imgUrl) {
                 // Handle images with professional styling
                 htmlBlock = `<div class="image-embed my-4">
-                    <img src="${imgUrl}" alt="${imgAlt || ''}" class="embedded-image" loading="lazy">
+                    <img src="${imgUrl}" alt="${imgAlt || ''}" class="embedded-image" loading="lazy" style="margin: 0 !important; padding: 0 !important;">
                     ${imgCaption}
                 </div>`;
             }
@@ -218,9 +219,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Social media scripts loader
+    // Social media scripts loader with gap removal
     function loadSocialScripts() {
-        console.log('Loading social media scripts...');
+        console.log('Loading social media scripts with gap removal...');
         
         // Load Twitter widget
         if (document.querySelector('.twitter-tweet') && !window.twttr) {
@@ -234,7 +235,15 @@ document.addEventListener('DOMContentLoaded', () => {
             twitterScript.onload = () => {
                 console.log('Twitter script loaded successfully');
                 if (window.twttr && window.twttr.widgets) {
-                    window.twttr.widgets.load();
+                    // Remove Twitter gaps after loading
+                    setTimeout(() => {
+                        window.twttr.widgets.load();
+                        document.querySelectorAll('.twitter-tweet').forEach(tweet => {
+                            tweet.style.margin = '0';
+                            tweet.style.padding = '0';
+                            tweet.style.border = 'none';
+                        });
+                    }, 100);
                 }
             };
             
@@ -254,7 +263,15 @@ document.addEventListener('DOMContentLoaded', () => {
             instagramScript.onload = () => {
                 console.log('Instagram script loaded successfully');
                 if (window.instgrm && window.instgrm.Embeds) {
-                    window.instgrm.Embeds.process();
+                    // Remove Instagram gaps after loading
+                    setTimeout(() => {
+                        window.instgrm.Embeds.process();
+                        document.querySelectorAll('.instagram-media').forEach(insta => {
+                            insta.style.margin = '0';
+                            insta.style.padding = '0';
+                            insta.style.border = 'none';
+                        });
+                    }, 100);
                 }
             };
             
@@ -276,7 +293,15 @@ document.addEventListener('DOMContentLoaded', () => {
             facebookScript.onload = () => {
                 console.log('Facebook script loaded successfully');
                 if (window.FB) {
-                    window.FB.XFBML.parse();
+                    // Remove Facebook gaps after loading
+                    setTimeout(() => {
+                        window.FB.XFBML.parse();
+                        document.querySelectorAll('.fb-post').forEach(post => {
+                            post.style.margin = '0';
+                            post.style.padding = '0';
+                            post.style.border = 'none';
+                        });
+                    }, 100);
                 }
             };
             
@@ -295,11 +320,17 @@ document.addEventListener('DOMContentLoaded', () => {
             
             tiktokScript.onload = () => {
                 console.log('TikTok script loaded successfully');
+                // Remove TikTok gaps
+                document.querySelectorAll('.tiktok-embed').forEach(tiktok => {
+                    tiktok.style.margin = '0';
+                    tiktok.style.padding = '0';
+                    tiktok.style.border = 'none';
+                });
             };
             
             tiktokScript.onerror = () => {
                 console.error('Failed to load TikTok embed script');
-            // Fallback for TikTok
+                // Fallback for TikTok
                 document.querySelectorAll('.tiktok-embed').forEach(embed => {
                     const cite = embed.getAttribute('cite');
                     if (cite) {
@@ -335,12 +366,32 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
         }, {
-            rootMargin: '100px', // Start loading 100px before element is visible
+            rootMargin: '100px',
             threshold: 0.1
         });
 
         lazyEmbeds.forEach(embed => {
             lazyLoadObserver.observe(embed);
+        });
+    }
+
+    // Force remove gaps from all embeds
+    function forceRemoveGaps() {
+        console.log('Force removing gaps from all embeds...');
+        
+        // Remove gaps from all embed containers
+        document.querySelectorAll('.embed-container, .youtube-embed, .twitter-embed, .instagram-embed, .facebook-embed, .tiktok-embed').forEach(container => {
+            container.style.margin = '0';
+            container.style.padding = '0';
+            container.style.border = 'none';
+        });
+        
+        // Remove gaps from all iframes and embed elements
+        document.querySelectorAll('iframe, blockquote.twitter-tweet, blockquote.instagram-media, .fb-post, .tiktok-embed').forEach(embed => {
+            embed.style.margin = '0 !important';
+            embed.style.padding = '0 !important';
+            embed.style.border = 'none !important';
+            embed.style.display = 'block !important';
         });
     }
 
@@ -383,7 +434,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initialize everything
     function initialize() {
-        console.log('Initializing embed system...');
+        console.log('Initializing embed system with gap removal...');
         
         // Process posts first
         processAllPosts();
@@ -398,9 +449,14 @@ document.addEventListener('DOMContentLoaded', () => {
             initLazyLoading();
         }, 500);
         
+        // Force remove gaps multiple times to ensure they're gone
+        setTimeout(() => {
+            forceRemoveGaps();
+        }, 800);
+        
         // Final processing after everything is loaded
         setTimeout(() => {
-            console.log('Performing final widget processing...');
+            console.log('Performing final widget processing and gap removal...');
             
             // Twitter
             if (window.twttr?.widgets) {
@@ -426,8 +482,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.log('TikTok embeds processed');
             }
             
-            console.log('Embed system initialization complete');
+            // Final gap removal
+            forceRemoveGaps();
+            
+            console.log('Embed system initialization complete - gaps should be removed');
         }, 2000);
+        
+        // One more gap removal for good measure
+        setTimeout(forceRemoveGaps, 3000);
     }
 
     // Start initialization

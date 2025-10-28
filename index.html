@@ -1,6 +1,34 @@
 ---
 layout: default
 ---
+<!-- Add CSS Reset to prevent framework conflicts -->
+<style>
+  /* CSS Reset for embeds */
+  .post-body iframe,
+  .post-body blockquote,
+  .post-body .twitter-tweet,
+  .post-body .instagram-media,
+  .post-body .fb-post,
+  .post-body .tiktok-embed {
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    display: block !important;
+  }
+  
+  /* Remove any default spacing from embed wrappers */
+  .embed-container,
+  .youtube-embed,
+  .twitter-embed,
+  .instagram-embed,
+  .facebook-embed,
+  .tiktok-embed {
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 0 !important;
+  }
+</style>
+
 <div class="live-container">
     <header class="live-header">
         <h1 class="text-4xl font-extrabold text-gray-800">Live News Archive</h1>
@@ -26,8 +54,10 @@ layout: default
                 </div>
                 {% endif %}
 
-                <div class="post-body pt-4" data-raw-content="{{ post.content | escape }}">
-                    </div>
+                <!-- REMOVED pt-4 class that was causing top gap -->
+                <div class="post-body" data-raw-content="{{ post.content | escape }}">
+                    <!-- Content will be loaded by embed.js -->
+                </div>
 
                 <div class="post-footer">
                     <button class="share-btn" data-post-id="{{ post.id | slugify }}" data-post-headline="{{ post.headline | escape }}">
@@ -97,5 +127,16 @@ layout: default
         if (liveContainer) {
             liveContainer.addEventListener('click', shareHandler);
         }
+
+        // Force remove gaps after page load
+        setTimeout(() => {
+            // Remove gaps from all embeds
+            document.querySelectorAll('.post-body iframe, .post-body blockquote').forEach(el => {
+                el.style.margin = '0 !important';
+                el.style.padding = '0 !important';
+                el.style.border = 'none !important';
+                el.style.display = 'block !important';
+            });
+        }, 1000);
     });
 </script>

@@ -1,12 +1,3 @@
-/*
-  Improved Live Blog & Embed CSS
-  - Enhanced embed system for perfect sizing and alignment
-  - Better responsive handling
-  - Improved social media embed containers
-  - Fixed YouTube embed alignment with text content
-*/
-
-/* === Root Variables === */
 :root {
   --primary-font: 'Inter', sans-serif;
   --background-color: #f3f4f6;
@@ -39,17 +30,25 @@
 }
 
 /* === General Body & Layout === */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
 body { 
   font-family: var(--primary-font); 
   background-color: var(--background-color);
   margin: 0;
   padding: 0;
+  padding-bottom: 85px;
 }
 
 .live-container { 
   max-width: 1440px; 
   margin: 0 auto; 
   padding: var(--spacing-md);
+  padding-bottom: 85px;
 }
 
 @media (min-width: 768px) {
@@ -70,7 +69,7 @@ body {
   box-shadow: var(--card-shadow);
   margin: 0 auto var(--spacing-lg) auto;
   max-width: var(--content-max-width);
-  display: none; /* Initially hide all posts */
+  display: none;
 }
 
 .live-post-content { 
@@ -118,12 +117,14 @@ body {
   color: #3498db; 
 }
 
-/* === Post Body Content === */
+
 .post-body { 
   text-align: left; 
   width: 100%;
   max-width: 100%;
-  line-height: 1.7;
+  line-height: 0.1;
+  padding: 0%;
+  margin: 0;
 }
 
 .post-body > * { 
@@ -136,7 +137,7 @@ body {
   line-height: 1.7; 
   color: var(--text-secondary); 
   margin-bottom: var(--spacing-md);
-  max-width: none; /* Let text flow naturally */
+  max-width: none;
 }
 
 .post-body img { 
@@ -157,12 +158,12 @@ body {
   max-width: 100%;
 }
 
-/* === FIXED YOUTUBE EMBED SYSTEM === */
+/* === FIXED YOUTUBE EMBED - NO GAPS === */
 .youtube-embed {
   width: 100%;
-  max-width: 100%;
-  margin: var(--spacing-lg) 0;
+  margin: var(--spacing-md) auto;
   text-align: center;
+  display: block;
 }
 
 .youtube-embed iframe {
@@ -173,14 +174,15 @@ body {
   border-radius: var(--border-radius-md);
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
   display: block;
-  margin: 0 auto; /* Center align within text flow */
+  margin: 0 auto;
+  top: 0;
+  left: 0;
 }
 
 /* === Image Embeds === */
 .image-embed {
   width: 100%;
-  max-width: 100%;
-  margin: var(--spacing-lg) 0;
+  margin: var(--spacing-md) auto;
   text-align: center;
 }
 
@@ -190,37 +192,38 @@ body {
   border-radius: var(--border-radius-md);
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
   display: block;
-  margin: 0 auto; /* Center align like YouTube */
+  margin: 0 auto;
 }
 
-/* === Social Media Embeds (Twitter, Instagram, Facebook) - Centered === */
+/* === FIXED Social Media Embeds - NO GAPS === */
 .embed-container {
-  margin: var(--spacing-lg) auto;
+  margin: var(--spacing-md) auto;
   width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: var(--embed-min-height);
+  max-width: var(--embed-max-width);
+  display: block;
+  position: relative;
 }
 
-/* Twitter Embed */
+/* Twitter Embed - Gap Free */
 .twitter-embed {
   width: 100%;
   max-width: 550px;
-  min-height: 450px;
+  margin: var(--spacing-md) auto;
 }
 
 .twitter-embed .twitter-tweet {
   margin: 0 auto !important;
   width: 100% !important;
   min-width: 300px !important;
+  max-width: 100% !important;
+  display: block !important;
 }
 
-/* Instagram Embed */
+/* Instagram Embed - Gap Free */
 .instagram-embed {
   width: 100%;
   max-width: 540px;
-  min-height: 650px;
+  margin: var(--spacing-md) auto;
 }
 
 .instagram-embed .instagram-media {
@@ -228,25 +231,64 @@ body {
   width: 100% !important;
   min-width: 320px !important;
   max-width: 540px !important;
+  display: block !important;
 }
 
-/* Facebook Embed */
+/* Facebook Embed - Gap Free */
 .facebook-embed {
   width: 100%;
   max-width: 500px;
-  min-height: 450px;
+  margin: var(--spacing-md) auto;
 }
 
 .facebook-embed .fb-post {
   margin: 0 auto !important;
   width: 100% !important;
+  display: block !important;
 }
 
 /* TikTok Embed */
 .tiktok-embed {
   width: 100%;
   max-width: 325px;
-  min-height: 700px;
+  margin: var(--spacing-md) auto;
+}
+
+/* === CRITICAL FIX: Remove all default embed spacing === */
+/* This removes gaps from all social media widgets */
+.twitter-tweet-rendered,
+.instagram-media-rendered,
+.fb-post iframe,
+.tiktok-embed iframe,
+.youtube-embed iframe {
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  display: block !important;
+}
+
+/* Force remove margins from embed blocks */
+blockquote.twitter-tweet,
+blockquote.instagram-media,
+blockquote.tiktok-embed {
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+}
+
+/* Ensure Facebook embeds have no gaps */
+.fb-post {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100% !important;
+  border: none !important;
+}
+
+.fb-post iframe {
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
 }
 
 /* Aspect Ratio System for Videos */
@@ -257,18 +299,19 @@ body {
   overflow: hidden;
   border-radius: var(--embed-border-radius);
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  margin: 0 !important;
 }
 
 .aspect-ratio-16-9 {
-  padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+  padding-bottom: 56.25%;
 }
 
 .aspect-ratio-9-16 {
-  padding-bottom: 177.78%; /* 9:16 Aspect Ratio (for Shorts/Mobile) */
+  padding-bottom: 177.78%;
 }
 
 .aspect-ratio-1-1 {
-  padding-bottom: 100%; /* 1:1 Aspect Ratio */
+  padding-bottom: 100%;
 }
 
 .aspect-ratio-container iframe {
@@ -278,6 +321,8 @@ body {
   width: 100%;
   height: 100%;
   border: 0;
+  margin: 0 !important;
+  padding: 0 !important;
 }
 
 /* Media Captioning */
@@ -313,7 +358,7 @@ body {
   border: 2px solid #f59e0b;
   border-radius: var(--border-radius-md);
   padding: var(--spacing-lg);
-  margin: var(--spacing-lg) 0;
+  margin: var(--spacing-md) auto;
   text-align: center;
   max-width: var(--youtube-width);
   margin-left: auto;
@@ -383,56 +428,35 @@ body {
 
 /* === Responsive Design === */
 @media (max-width: 768px) {
+  :root {
+    --youtube-width: 100%;
+    --youtube-height: 300px;
+  }
+  
   .live-post-content {
     padding: var(--spacing-md);
   }
   
-  .youtube-embed iframe {
-    max-width: 100%;
-    height: 300px;
-  }
-  
-  .twitter-embed,
-  .facebook-embed {
-    min-height: 350px;
-  }
-  
-  .instagram-embed {
-    min-height: 500px;
-  }
-  
   .embed-container {
-    min-height: 300px;
-    margin: var(--spacing-md) 0;
+    margin: var(--spacing-sm) auto;
   }
   
   .post-body p {
     font-size: 1rem;
     line-height: 1.6;
   }
-  
-  /* Adjust YouTube dimensions for tablet */
-  :root {
-    --youtube-width: 100%;
-    --youtube-height: 300px;
-  }
 }
 
 @media (max-width: 480px) {
+  :root {
+    --youtube-height: 250px;
+  }
+  
   .youtube-embed iframe {
-    height: 250px;
     border-radius: var(--border-radius-sm);
+    height: 100%;
   }
-  
-  .twitter-embed,
-  .facebook-embed {
-    min-height: 300px;
-  }
-  
-  .instagram-embed {
-    min-height: 450px;
-  }
-  
+
   .live-container {
     padding: var(--spacing-sm);
   }
@@ -441,15 +465,14 @@ body {
     margin-bottom: var(--spacing-md);
   }
   
-  /* Adjust YouTube dimensions for mobile */
-  :root {
-    --youtube-height: 250px;
-  }
-  
   .post-body p {
     font-size: 1rem;
     line-height: 1.6;
     padding: 0 0.5rem;
+  }
+  
+  .embed-container {
+    margin: var(--spacing-sm) auto;
   }
 }
 
@@ -470,7 +493,7 @@ body {
   color: var(--text-muted);
   font-style: italic;
   max-width: var(--youtube-width);
-  margin: var(--spacing-lg) auto;
+  margin: var(--spacing-md) auto;
 }
 
 /* === Utility Classes === */
@@ -524,4 +547,19 @@ body {
 
 .post-body > *:last-child {
   margin-bottom: 0;
+}
+
+/* === GAP REMOVAL OVERRIDES === */
+/* Final nuclear option to remove any remaining gaps */
+.post-body .embed-container > *,
+.post-body .youtube-embed > *,
+.post-body .twitter-embed > *,
+.post-body .instagram-embed > *,
+.post-body .facebook-embed > *,
+.post-body .tiktok-embed > * {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  line-height: 1 !important;
 }
