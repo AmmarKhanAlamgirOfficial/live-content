@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 ${caption}
                             </div>`;
                         } else {
-                            // Fallback - show as link with better styling
+                            
                             htmlBlock = `<div class="embed-error my-4">
                                 <p><i class="fas fa-exclamation-triangle mr-2"></i>Could not embed YouTube video</p>
                                 <a href="${socialUrl}" target="_blank" class="social-link" rel="noopener">

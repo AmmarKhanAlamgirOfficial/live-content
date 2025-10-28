@@ -549,8 +549,6 @@ blockquote.tiktok-embed {
   margin-bottom: 0;
 }
 
-/* === GAP REMOVAL OVERRIDES === */
-/* Final nuclear option to remove any remaining gaps */
 .post-body .embed-container > *,
 .post-body .youtube-embed > *,
 .post-body .twitter-embed > *,
