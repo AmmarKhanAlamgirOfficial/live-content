@@ -30,7 +30,9 @@ jobs:
             const matter = require('gray-matter');
 
             const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
-            const POSTS_TO_KEEP = 10;
+            
+            // UPDATED: Changed from 10 to 20
+            const POSTS_TO_KEEP = 20;
 
             async function run() {
               console.log('Fetching all posts to determine which to archive...');
@@ -51,10 +53,20 @@ jobs:
 
               const postIdsToDelete = [];
               for (const post of postsToArchive) {
-                const { id, headline, content, author_name, timestamp, tags, is_pinned } = post;
+                // UPDATED: Added like_count and view_count to extraction
+                const { id, headline, content, author_name, timestamp, tags, is_pinned, like_count, view_count } = post;
                 if (is_pinned) continue;
 
-                const frontmatter = { headline, author_name, timestamp, tags };
+                // UPDATED: Mapped counts to 'likes' and 'views' in frontmatter
+                const frontmatter = { 
+                  headline, 
+                  author_name, 
+                  timestamp, 
+                  tags,
+                  likes: like_count,
+                  views: view_count
+                };
+                
                 const fileContent = matter.stringify(content || '', frontmatter);
                 
                 const date = new Date(timestamp);
@@ -84,7 +96,7 @@ jobs:
           git add _posts/
           if ! git diff-index --quiet HEAD; then
             echo "changes=true" >> $GITHUB_OUTPUT
-            git commit -m 'feat: Archive older live posts'
+            git commit -m 'feat: Archive older live posts (limit 20)'
             git push
           else
             echo "changes=false" >> $GITHUB_OUTPUT
